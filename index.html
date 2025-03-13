@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React + TS</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #fallback-loading {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo {
+            width: 400px;
+            margin-bottom: 20px;
+            object-fit: cover;
+            object-position: left;
+        }
+
+        .loading-bar-container {
+            margin-top: 48px;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-in forwards;
+        }
+
+        .loading-bar {
+            position: relative;
+            height: 2px;
+            width: 192px;
+            background-color: #f3f4f6;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, #FF5722, #1a237e, #FF5722);
+            animation: loading 1.5s ease-in-out infinite;
+        }
+
+        .loading-text {
+            margin-top: 16px;
+            text-align: center;
+            color: #4b5563;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-in forwards;
+        }
+
+        @media screen and (max-width: 768px) {
+            .logo {
+                width: 250px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes loading {
+            from {
+                transform: translateX(-100%);
+            }
+
+            to {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Dark mode styles now applied via JS */
+        #fallback-loading.dark {
+            background-color: #30334E;
+        }
+
+        #fallback-loading.dark .loading-text {
+            color: #9ca3af;
+        }
+
+        #fallback-loading.dark .logo {
+            filter: invert(1) brightness(1);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <div id="fallback-loading">
+        <div class="logo-container">
+            <img src="./src/assets/logo pestindo 2.png" alt="Logo" class="logo">
+            <div class="loading-bar-container">
+                <div class="loading-bar"></div>
+                <p class="loading-text">Mohon tunggu sebentar...</p>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+        // Check theme from localStorage and apply it immediately
+        const theme = localStorage.getItem('theme') || 'light';
+        const loadingScreen = document.getElementById('fallback-loading');
+        if (theme === 'dark') {
+            loadingScreen?.classList.add('dark');
+        }
+
+        // Remove fallback loading screen once React is hydrated
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("fallback-loading")?.remove();
+        });
+    </script>
+</body>
+
+</html>
