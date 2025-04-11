@@ -3,98 +3,109 @@ import { useAtom } from "jotai";
 import { authAtom } from "@/store/auth";
 import { LoginResponse, LoginType } from "@/routes/login";
 import ky from "ky";
-import { useLocation, useNavigate, useParams } from "@tanstack/react-router";
+import { getApiErrorMessage } from "@/lib/utils";
+
+type AuthError = {
+    message: string;
+    code?: string;
+    status?: number;
+};
 
 export function useAuth() {
-  const [auth, setAuth] = useAtom(authAtom);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
+    const [auth, setAuth] = useAtom(authAtom);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<AuthError | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const login = async (credentials: LoginType) => {
-    setIsLoading(true);
-    setError("");
+    const handleAuthError = async (err: any): Promise<AuthError> => {
+        const errorMessage = await getApiErrorMessage(err);
+        return {
+            message: errorMessage.message,
+            status: errorMessage.statusCode,
+            code: errorMessage.errorType,
+        };
+    };
 
-    try {
-      console.log("sebelum res");
-      const res = await ky
-        .post(import.meta.env.VITE_API_URL + "/api/login", {
-          json: credentials,
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        })
-        .json<LoginResponse>();
+    const login = async (credentials: LoginType) => {
+        setIsLoading(true);
+        setError(null);
 
-      console.log("setelah res");
-      console.log("res", res);
-
-      setAuth({
-        token: res.token,
-        expires_at: res.expires_at,
-        user: res.data,
-      });
-      navigate({ to: "/dashboard" });
-    } catch (err: any) {
-      console.error("err", err);
-
-      if (err.response) {
         try {
-          const errorData = await err.response.json();
-          console.log("errorData", errorData);
-          setError(errorData.message || "An unknown error occurred");
-        } catch (parseError) {
-          console.error("Failed to parse error response", parseError);
-          setError("An unknown error occurred");
+            const res = await ky
+                .post(import.meta.env.VITE_API_URL + "/api/login", {
+                    json: credentials,
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                })
+                .json<LoginResponse>();
+
+            setIsAuthenticated(true);
+            setError(null);
+            setAuth({
+                token: res.token,
+                expires_at: res.expires_at,
+                user: res.data,
+            });
+            sessionStorage.removeItem("loginForm");
+        } catch (err: any) {
+            console.log('err', err)
+            const authError = await handleAuthError(err);
+            setError(authError);
+            setIsAuthenticated(false);
+        } finally {
+            setIsLoading(false);
         }
-      } else {
-        setError(err.message || "An unknown error occurred");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
-  const logout = async () => {
-    setIsLoading(true);
-    setError("");
+    const logout = async () => {
+        setIsLoading(true);
+        setError(null);
 
-    try {
-      await ky
-        .post(import.meta.env.VITE_API_URL + "/api/logout", {
-          headers: {
-            Accept: "application/json",
-            Authorization: "Bearer " + auth?.token,
-            "Content-Type": "application/json",
-          },
-        })
-        .json();
+        try {
+            await ky
+                .post(import.meta.env.VITE_API_URL + "/api/logout", {
+                    headers: {
+                        Accept: "application/json",
+                        Authorization: "Bearer " + auth?.token,
+                        "Content-Type": "application/json",
+                    },
+                })
+                .json();
 
-      setAuth(null);
-      navigate({ to: "/login" });
-    } catch (err: any) {
-      console.error("err", err);
+            setAuth(null);
+            setIsAuthenticated(false);
+            setError(null);
+        } catch (err: any) {
+            const authError = await handleAuthError(err);
 
-      if (err.response.status == 401) {
-        setAuth(null);
-        navigate({ to: "/login" });
-      }
+            if (err.response?.status === 401) {
+                setAuth(null);
+                setIsAuthenticated(false);
+                setError(null);
+            } else {
+                setError(authError);
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    useEffect(() => {
+        setIsAuthenticated(!!auth?.token);
+        if (auth?.token) {
+            setError(null);
+        }
+    }, [auth]);
 
-  return {
-    auth,
-    isAuthenticated,
-    login,
-    logout,
-    isLoading,
-    error,
-    setIsAuthenticated,
-  };
+    return {
+        auth,
+        isAuthenticated,
+        login,
+        logout,
+        isLoading,
+        error,
+        setIsAuthenticated,
+    };
 }

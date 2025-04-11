@@ -10,14 +10,7 @@ type DebounceInputProps = {
     type?: string;
 };
 
-export const DebounceInput = ({
-    value: initialValue,
-    onChange,
-    delay = 300,
-    placeholder,
-    className,
-    type = "text",
-}: DebounceInputProps) => {
+export const DebounceInput = ({ value: initialValue, onChange, delay = 300, placeholder, className, type = "text" }: DebounceInputProps) => {
     const [value, setValue] = useState(initialValue);
 
     useEffect(() => {
@@ -30,13 +23,5 @@ export const DebounceInput = ({
         };
     }, [value, delay, onChange]);
 
-    return (
-        <Input
-            type={type}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder={placeholder}
-            className={className}
-        />
-    );
+    return <Input type={type} value={value} onChange={(e) => setValue(e.target.value)} placeholder={placeholder} className={className} />;
 };

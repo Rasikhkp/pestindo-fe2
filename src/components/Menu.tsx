@@ -1,5 +1,4 @@
 import { Link, ReactNode } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
 const Menu = ({
@@ -28,19 +27,9 @@ const Menu = ({
         >
             {icon}
             <div id="menu-name">{menuName}</div>
-            <AnimatePresence>
-                {!isSidebarOpen && showTooltip && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 100 }}
-                        exit={{ opacity: 0 }}
-                        key="lala"
-                        className="absolute px-3 py-2 duration-100 translate-x-10 bg-white dark:bg-[#30334E] border border-gray-200 dark:border-gray-600 rounded-lg"
-                    >
-                        {menuName}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {!isSidebarOpen && showTooltip && (
+                <div className="absolute px-3 py-2 duration-100 translate-x-10 bg-white dark:bg-[#30334E] border border-gray-200 dark:border-gray-600 rounded-lg">{menuName}</div>
+            )}
         </Link>
     );
 };

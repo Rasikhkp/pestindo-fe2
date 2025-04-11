@@ -28,14 +28,7 @@ export function DatePickerWithRange({ className, value: propValue, onChange: pro
         <div className={cn("grid gap-2", className)}>
             <Popover>
                 <PopoverTrigger asChild>
-                    <Button
-                        id="date"
-                        variant="outline"
-                        className={cn(
-                            "w-[300px] justify-start text-left font-normal",
-                            !value && "text-muted-foreground",
-                        )}
-                    >
+                    <Button id="date" variant="outline" className={cn("w-[300px] justify-start text-left font-normal", !value && "text-muted-foreground")}>
                         <CalendarIcon />
                         {value?.from ? (
                             value.to ? (
@@ -51,14 +44,7 @@ export function DatePickerWithRange({ className, value: propValue, onChange: pro
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                        initialFocus
-                        mode="range"
-                        defaultMonth={value?.from}
-                        selected={value}
-                        onSelect={onChange}
-                        numberOfMonths={2}
-                    />
+                    <Calendar initialFocus mode="range" defaultMonth={value?.from} selected={value} onSelect={onChange} numberOfMonths={2} />
                 </PopoverContent>
             </Popover>
         </div>

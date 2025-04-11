@@ -1,37 +1,41 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Navigate, useRouter } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { ArchiveTick, ArrowLeft, Chart, Clock, CloseCircle, Timer, WalletMoney } from "iconsax-react";
-import {
-    ColumnDef,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    PaginationState,
-    useReactTable,
-} from "@tanstack/react-table";
+import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, PaginationState, useReactTable } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowDown, ArrowUp } from "iconsax-react";
 import { DebounceInput } from "@/components/DebounceInput";
-import { api, formatToRupiah, fuzzyFilter } from "@/lib/utils";
+import { api, canAccess, formatToRupiah, fuzzyFilter, getApiErrorMessage } from "@/lib/utils";
 import { PaginationControls } from "@/components/PaginationControls";
 import { Job } from "@/types/types";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/_layout/sales_/customer_/$customer_id")({
     component: RouteComponent,
     loader: async ({ params }) => {
-        const { data } = await api()
-            .get("customers/" + params.customer_id)
-            .json<any>();
-        return data;
+        try {
+            const { data } = await api()
+                .get("customers/" + params.customer_id)
+                .json<any>();
+            return data;
+        } catch (error) {
+            const errorMessage = await getApiErrorMessage(error);
+            throw new Error(errorMessage.message);
+        }
     },
 });
 
 function RouteComponent() {
+    const { auth } = useAuth();
+
+    if (!canAccess(["Sales", "Superadmin", "Manager Sales"], auth?.user.role || "")) {
+        return <Navigate to="/dashboard" />;
+    }
+
     const router = useRouter();
-    const { customer_id } = Route.useParams();
     const customer = Route.useLoaderData();
 
     const idNumberLabel = customer.type === "company" ? "NPWP" : "NIK";
@@ -61,9 +65,7 @@ function RouteComponent() {
                         </div>
 
                         <div className="flex p-4 border-b border-gray-200 dark:border-gray-600">
-                            <div className="w-40 font-medium">
-                                {customer.type === "company" ? "Nama Perusahaan" : "Nama"}
-                            </div>
+                            <div className="w-40 font-medium">{customer.type === "company" ? "Nama Perusahaan" : "Nama"}</div>
                             <div className="flex-1">{customer.name}</div>
                         </div>
 
@@ -79,9 +81,7 @@ function RouteComponent() {
 
                         <div className="flex p-4 border-b border-gray-200 dark:border-gray-600">
                             <div className="w-40 font-medium">{addressLabel}</div>
-                            <div className="flex-1">
-                                {customer.type === "company" ? customer.npwp_address : customer.ktp_address}
-                            </div>
+                            <div className="flex-1">{customer.type === "company" ? customer.npwp_address : customer.ktp_address}</div>
                         </div>
 
                         <div className="flex p-4">
@@ -101,7 +101,7 @@ function RouteComponent() {
                         className="flex-1 p-4 space-y-2 text-gray-600 border border-gray-200 dark:border-gray-600 dark:text-gray-200 h-fit basis-80 min-w-80 rounded-xl"
                     >
                         <WalletMoney variant="TwoTone" className="mb-6" />
-                        <div className="text-4xl font-bold">Rp 100.050.000</div>
+                        <div className="text-4xl font-bold">{formatToRupiah(customer.total_jobs_value)}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">Total Nilai Kontrak</div>
                     </motion.div>
 
@@ -115,7 +115,7 @@ function RouteComponent() {
                         className="flex-1 p-4 space-y-2 text-gray-600 border border-gray-200 dark:border-gray-600 dark:text-gray-200 h-fit basis-40 min-w-40 rounded-xl"
                     >
                         <Chart variant="TwoTone" className="mb-6" />
-                        <div className="text-4xl font-bold">10</div>
+                        <div className="text-4xl font-bold">{customer.total_jobs}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">Total Pekerjaan</div>
                     </motion.div>
 
@@ -129,7 +129,7 @@ function RouteComponent() {
                         className="flex-1 p-4 space-y-2 text-gray-600 border border-gray-200 dark:border-gray-600 dark:text-gray-200 h-fit basis-40 min-w-40 rounded-xl"
                     >
                         <Clock variant="TwoTone" className="mb-6" />
-                        <div className="text-4xl font-bold">1</div>
+                        <div className="text-4xl font-bold">{customer.total_pending_jobs}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">Pekerjaan Pending</div>
                     </motion.div>
 
@@ -143,7 +143,7 @@ function RouteComponent() {
                         className="flex-1 p-4 space-y-2 text-gray-600 border border-gray-200 dark:border-gray-600 dark:text-gray-200 h-fit basis-40 min-w-40 rounded-xl"
                     >
                         <Timer variant="TwoTone" className="mb-6" />
-                        <div className="text-4xl font-bold">1</div>
+                        <div className="text-4xl font-bold">{customer.total_in_progress_jobs}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">Pekerjaan Berjalan</div>
                     </motion.div>
 
@@ -157,7 +157,7 @@ function RouteComponent() {
                         className="flex-1 p-4 space-y-2 text-gray-600 border border-gray-200 dark:border-gray-600 dark:text-gray-200 h-fit basis-40 min-w-40 rounded-xl"
                     >
                         <ArchiveTick variant="TwoTone" className="mb-6" />
-                        <div className="text-4xl font-bold">10</div>
+                        <div className="text-4xl font-bold">{customer.total_completed_jobs}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">Pekerjaan Selesai</div>
                     </motion.div>
 
@@ -171,7 +171,7 @@ function RouteComponent() {
                         className="flex-1 p-4 space-y-2 text-gray-600 border border-gray-200 dark:border-gray-600 dark:text-gray-200 h-fit basis-40 min-w-40 rounded-xl"
                     >
                         <CloseCircle variant="TwoTone" className="mb-6" />
-                        <div className="text-4xl font-bold">10</div>
+                        <div className="text-4xl font-bold">{customer.total_cancelled_jobs}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">Pekerjaan Dibatalkan</div>
                     </motion.div>
                 </motion.div>
@@ -182,204 +182,75 @@ function RouteComponent() {
     );
 }
 
-const jobs: Job[] = [
-    {
-        job_id: 1,
-        type: "residency",
-        start_date: "2024-01-10",
-        end_date: "2024-02-15",
-        status: "pending",
-        contract_value: 5000,
-    },
-    {
-        job_id: 2,
-        type: "commercial",
-        start_date: "2024-02-05",
-        end_date: "2024-03-20",
-        status: "on_progress",
-        contract_value: 15000,
-    },
-    {
-        job_id: 3,
-        type: "residency",
-        start_date: "2024-03-01",
-        end_date: "2024-04-10",
-        status: "finished",
-        contract_value: 7500,
-    },
-    {
-        job_id: 4,
-        type: "commercial",
-        start_date: "2024-04-12",
-        end_date: "2024-05-25",
-        status: "canceled",
-        contract_value: 20000,
-    },
-    {
-        job_id: 5,
-        type: "residency",
-        start_date: "2024-05-02",
-        end_date: "2024-06-18",
-        status: "pending",
-        contract_value: 6800,
-    },
-    {
-        job_id: 6,
-        type: "commercial",
-        start_date: "2024-06-10",
-        end_date: "2024-07-30",
-        status: "on_progress",
-        contract_value: 14000,
-    },
-    {
-        job_id: 7,
-        type: "residency",
-        start_date: "2024-07-05",
-        end_date: "2024-08-15",
-        status: "finished",
-        contract_value: 8900,
-    },
-    {
-        job_id: 8,
-        type: "commercial",
-        start_date: "2024-08-20",
-        end_date: "2024-09-30",
-        status: "canceled",
-        contract_value: 21500,
-    },
-    {
-        job_id: 9,
-        type: "residency",
-        start_date: "2024-09-10",
-        end_date: "2024-10-22",
-        status: "pending",
-        contract_value: 7200,
-    },
-    {
-        job_id: 10,
-        type: "commercial",
-        start_date: "2024-10-05",
-        end_date: "2024-11-25",
-        status: "on_progress",
-        contract_value: 17500,
-    },
-    {
-        job_id: 11,
-        type: "residency",
-        start_date: "2024-11-15",
-        end_date: "2024-12-28",
-        status: "finished",
-        contract_value: 9100,
-    },
-    {
-        job_id: 12,
-        type: "commercial",
-        start_date: "2024-12-10",
-        end_date: "2025-01-25",
-        status: "canceled",
-        contract_value: 19500,
-    },
-    {
-        job_id: 13,
-        type: "residency",
-        start_date: "2025-01-12",
-        end_date: "2025-02-20",
-        status: "pending",
-        contract_value: 7400,
-    },
-    {
-        job_id: 14,
-        type: "commercial",
-        start_date: "2025-02-08",
-        end_date: "2025-03-30",
-        status: "on_progress",
-        contract_value: 16500,
-    },
-    {
-        job_id: 15,
-        type: "residency",
-        start_date: "2025-03-15",
-        end_date: "2025-04-28",
-        status: "finished",
-        contract_value: 8100,
-    },
-    {
-        job_id: 16,
-        type: "commercial",
-        start_date: "2025-04-10",
-        end_date: "2025-05-22",
-        status: "canceled",
-        contract_value: 18000,
-    },
-    {
-        job_id: 17,
-        type: "residency",
-        start_date: "2025-05-18",
-        end_date: "2025-06-30",
-        status: "pending",
-        contract_value: 6700,
-    },
-    {
-        job_id: 18,
-        type: "commercial",
-        start_date: "2025-06-12",
-        end_date: "2025-07-25",
-        status: "on_progress",
-        contract_value: 15500,
-    },
-    {
-        job_id: 19,
-        type: "residency",
-        start_date: "2025-07-05",
-        end_date: "2025-08-20",
-        status: "finished",
-        contract_value: 9200,
-    },
-    {
-        job_id: 20,
-        type: "commercial",
-        start_date: "2025-08-10",
-        end_date: "2025-09-28",
-        status: "canceled",
-        contract_value: 21000,
-    },
-    {
-        job_id: 21,
-        type: "residency",
-        start_date: "2025-09-12",
-        end_date: "2025-10-30",
-        status: "pending",
-        contract_value: 7300,
-    },
-    {
-        job_id: 22,
-        type: "commercial",
-        start_date: "2025-10-08",
-        end_date: "2025-11-20",
-        status: "on_progress",
-        contract_value: 16000,
-    },
-];
-
 const getJobColumns = (): ColumnDef<Job, any>[] => [
     {
-        accessorKey: "job_id",
+        accessorKey: "code",
         header: () => "ID Pekerjaan",
         filterFn: "fuzzy",
+    },
+    {
+        accessorKey: "contract_type",
+        header: () => "Tipe Kontrak",
+        filterFn: (row, colId, filterValue) => filterValue === "all" || filterValue === row.getValue(colId),
+        cell: ({ row }) => {
+            const type = row.original.contract_type;
+            return type === "one_time" ? "One Time" : "Project";
+        },
     },
     {
         accessorKey: "type",
         header: () => "Tipe",
         filterFn: (row, colId, filterValue) => filterValue === "all" || filterValue === row.getValue(colId),
+        cell: ({ row }) => {
+            const type = row.original.type;
+            let badgeStyle = "";
+            let typeText = "";
+            if (type === "pest_control") {
+                badgeStyle = "bg-green-100 text-green-800";
+                typeText = "Pest Control";
+            } else if (type === "termite_control") {
+                badgeStyle = "bg-blue-100 text-blue-800";
+                typeText = "Termite Control";
+            }
+            return <span className={`px-2 py-1 text-xs font-semibold rounded ${badgeStyle}`}>{typeText}</span>;
+        },
+    },
+    {
+        accessorKey: "status",
+        header: () => "Status",
+        filterFn: (row, colId, filterValue) => filterValue === "all" || filterValue === row.getValue(colId),
+        cell: ({ row }) => {
+            const status = row.original.status;
+            let badgeStyle = "";
+            let statusText = "";
+            if (status === "pending") {
+                badgeStyle = "bg-yellow-100 text-yellow-800";
+                statusText = "Pending";
+            } else if (status === "in_progress") {
+                badgeStyle = "bg-blue-100 text-blue-800";
+                statusText = "Dalam Proses";
+            } else if (status === "completed") {
+                badgeStyle = "bg-green-100 text-green-800";
+                statusText = "Selesai";
+            } else if (status === "cancelled") {
+                badgeStyle = "bg-red-100 text-red-800";
+                statusText = "Dibatalkan";
+            }
+            return <span className={`px-2 py-1 text-xs font-semibold rounded ${badgeStyle}`}>{statusText}</span>;
+        },
     },
     {
         accessorKey: "start_date",
         header: () => "Tanggal",
-        cell: ({ row }) => `${row.original.start_date} - ${row.original.end_date}`,
+        cell: ({ row }) => {
+            const startDate = new Date(row.original.start_date);
+            const endDate = new Date(row.original.end_date);
+            return `${format(startDate, 'dd/MM/yyyy', { locale: id })} - ${format(endDate, 'dd/MM/yyyy', { locale: id })}`;
+        },
         filterFn: "fuzzy",
     },
     {
-        accessorKey: "contract_value",
+        accessorKey: "total_contract_value",
         header: () => "Nilai Kontrak",
         cell: ({ getValue }) => formatToRupiah(getValue()),
         filterFn: "fuzzy",
@@ -387,7 +258,8 @@ const getJobColumns = (): ColumnDef<Job, any>[] => [
 ];
 
 const JobTable = () => {
-    const [data, _setData] = useState(jobs);
+    const customer = Route.useLoaderData();
+    const [data, _setData] = useState(customer.jobs || []);
     const [globalFilter, setGlobalFilter] = useState("");
 
     const [pagination, setPagination] = useState<PaginationState>({
@@ -428,16 +300,33 @@ const JobTable = () => {
                     <div className="flex gap-2">
                         <Select
                             value={table.getColumn("type")?.getFilterValue()?.toString() || "all"}
-                            onValueChange={(val) => table.getHeaderGroups()[0].headers[1].column.setFilterValue(val)}
+                            onValueChange={(val) => table.getHeaderGroups()[0].headers[2].column.setFilterValue(val)}
                         >
                             <SelectTrigger className="w-40 dark:border-gray-600">
-                                <SelectValue placeholder="Plih Tipe" />
+                                <SelectValue placeholder="Pilih Tipe" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
                                     <SelectItem value="all">Semua</SelectItem>
-                                    <SelectItem value="residency">Recidency</SelectItem>
-                                    <SelectItem value="commercial">Commercial</SelectItem>
+                                    <SelectItem value="pest_control">Pest Control</SelectItem>
+                                    <SelectItem value="termite_control">Termite Control</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                        <Select
+                            value={table.getColumn("status")?.getFilterValue()?.toString() || "all"}
+                            onValueChange={(val) => table.getHeaderGroups()[0].headers[3].column.setFilterValue(val)}
+                        >
+                            <SelectTrigger className="w-40 dark:border-gray-600">
+                                <SelectValue placeholder="Pilih Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem value="all">Semua</SelectItem>
+                                    <SelectItem value="pending">Pending</SelectItem>
+                                    <SelectItem value="in_progress">Dalam Proses</SelectItem>
+                                    <SelectItem value="completed">Selesai</SelectItem>
+                                    <SelectItem value="cancelled">Dibatalkan</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
@@ -448,19 +337,11 @@ const JobTable = () => {
                 <table className="w-full text-sm border-collapse">
                     <thead>
                         {table.getHeaderGroups().map((headerGroup, i) => (
-                            <tr
-                                key={i}
-                                className="text-left text-gray-400  bg-gray-50 dark:bg-[#2e3149] border-b border-gray-200 dark:border-gray-600"
-                            >
+                            <tr key={i} className="text-left text-gray-400  bg-gray-50 dark:bg-[#2e3149] border-b border-gray-200 dark:border-gray-600">
                                 {headerGroup.headers.map((header, i) => (
                                     <th key={i} className="p-3 font-medium">
-                                        <div
-                                            onClick={header.column.getToggleSortingHandler()}
-                                            className="flex items-center gap-1 cursor-pointer whitespace-nowrap"
-                                        >
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(header.column.columnDef.header, header.getContext())}
+                                        <div onClick={header.column.getToggleSortingHandler()} className="flex items-center gap-1 cursor-pointer whitespace-nowrap">
+                                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                             {{
                                                 asc: <ArrowUp size={14} />,
                                                 desc: <ArrowDown size={14} />,
@@ -473,10 +354,7 @@ const JobTable = () => {
                     </thead>
                     <tbody>
                         {table.getRowModel().rows.map((row, i) => (
-                            <tr
-                                key={i}
-                                className="text-left text-gray-600 border-b divide-x divide-gray-200 dark:divide-gray-600 dark:border-gray-600 dark:text-gray-300"
-                            >
+                            <tr key={i} className="text-left text-gray-600 border-b divide-x divide-gray-200 dark:divide-gray-600 dark:border-gray-600 dark:text-gray-300">
                                 {row.getVisibleCells().map((cell, i) => (
                                     <td className="p-3 whitespace-nowrap" key={i}>
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}

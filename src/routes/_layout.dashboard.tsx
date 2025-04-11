@@ -14,12 +14,8 @@ function RouteComponent() {
     const [_, setError] = useAtom(errorAtom);
 
     const getCustomers = async () => {
-        console.log("clicked");
         try {
-            const res = await api(logout, null, auth?.token)
-                .get("customers")
-                .json();
-            console.log("res", res);
+            const res = await api(logout, null, auth?.token).get("customers").json();
         } catch (e: any) {
             console.log("e.message", e.message);
 

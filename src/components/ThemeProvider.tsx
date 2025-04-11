@@ -4,7 +4,7 @@ import { themeAtom } from "../store/theme";
 
 type ThemeProviderProps = {
     children: ReactNode;
-}
+};
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     const [theme] = useAtom(themeAtom);

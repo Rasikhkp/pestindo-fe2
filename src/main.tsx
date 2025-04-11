@@ -14,24 +14,22 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider } from "./components/AuthProvider";
 
 const App = () => {
-  const [theme] = useAtom(themeAtom);
+    const [theme] = useAtom(themeAtom);
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <HeroUIProvider>
-        <ThemeProvider>
-          <AuthProvider>
-            <Toaster className="font-[Inter]" theme={theme} closeButton />
-            <RouterProvider router={router} />
-          </AuthProvider>
-        </ThemeProvider>
-      </HeroUIProvider>
-    </QueryClientProvider>
-  );
+    return (
+        <QueryClientProvider client={queryClient}>
+            <HeroUIProvider>
+                <ThemeProvider>
+                    <AuthProvider>
+                        <Toaster className="font-[Inter]" theme={theme} closeButton />
+                        <RouterProvider router={router} />
+                    </AuthProvider>
+                </ThemeProvider>
+            </HeroUIProvider>
+        </QueryClientProvider>
+    );
 };
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
     <App />
-  </StrictMode>,
 );

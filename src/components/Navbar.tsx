@@ -1,42 +1,14 @@
-import {
-    Add,
-    Moon,
-    Notification,
-    SearchNormal,
-    Sun1,
-    TextalignJustifycenter,
-    UserSquare,
-} from "iconsax-react";
+import { Add, Moon, Notification, SearchNormal, Sun1, TextalignJustifycenter, UserSquare } from "iconsax-react";
 import { useAtom } from "jotai";
-import {
-    AnimatePresence,
-    useAnimate,
-    useMotionValueEvent,
-    useScroll,
-    motion,
-} from "motion/react";
-import {
-    Dispatch,
-    forwardRef,
-    Fragment,
-    SetStateAction,
-    useEffect,
-    useRef,
-    useState,
-} from "react";
+import { AnimatePresence, useAnimate, useMotionValueEvent, useScroll, motion } from "motion/react";
+import { Dispatch, forwardRef, Fragment, SetStateAction, useEffect, useRef, useState } from "react";
 import { themeAtom } from "../store/theme";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { menuData, MenuItem } from "./Sidebar";
 import { Drawer } from "vaul";
 import { useAuth } from "@/hooks/useAuth";
 
-const Navbar = ({
-    openDrawer,
-    setOpenDrawer,
-}: {
-    openDrawer?: boolean;
-    setOpenDrawer?: Dispatch<SetStateAction<boolean>>;
-}) => {
+const Navbar = ({ openDrawer, setOpenDrawer }: { openDrawer?: boolean; setOpenDrawer?: Dispatch<SetStateAction<boolean>> }) => {
     const { scrollY } = useScroll();
     const [scope, animate] = useAnimate();
     const [isOnTop, setIsOnTop] = useState(true);
@@ -45,10 +17,7 @@ const Navbar = ({
     const profileDropdownRef = useRef<HTMLDivElement | null>(null);
 
     const handleClickOutside = (e: MouseEvent) => {
-        if (
-            !profileDropdownRef.current?.contains(e.target as Node) &&
-            !profileButtonRef.current?.contains(e.target as Node)
-        ) {
+        if (!profileDropdownRef.current?.contains(e.target as Node) && !profileButtonRef.current?.contains(e.target as Node)) {
             setOpenProfileDropdown(false);
         }
     };
@@ -59,11 +28,7 @@ const Navbar = ({
 
     useEffect(() => {
         if (isOnTop) {
-            animate(
-                "nav",
-                { padding: "12px 0px", borderWidth: 0 },
-                { borderWidth: { duration: 0 } }
-            );
+            animate("nav", { padding: "12px 0px", borderWidth: 0 }, { borderWidth: { duration: 0 } });
         } else {
             animate(
                 "nav",
@@ -71,7 +36,7 @@ const Navbar = ({
                     padding: "12px 12px",
                     borderWidth: 1,
                 },
-                { borderWidth: { delay: 0.1 } }
+                { borderWidth: { delay: 0.1 } },
             );
         }
     }, [isOnTop]);
@@ -101,16 +66,10 @@ const Navbar = ({
                         <ThemeToggle />
                         <button
                             ref={profileButtonRef}
-                            onClick={() =>
-                                setOpenProfileDropdown(!openProfileDropdown)
-                            }
+                            onClick={() => setOpenProfileDropdown(!openProfileDropdown)}
                             className="transition-all bg-blue-300 rounded-full size-10 active:scale-90"
                         ></button>
-                        <AnimatePresence>
-                            {openProfileDropdown && (
-                                <ProfileDropdown ref={profileDropdownRef} />
-                            )}
-                        </AnimatePresence>
+                        <AnimatePresence>{openProfileDropdown && <ProfileDropdown ref={profileDropdownRef} />}</AnimatePresence>
                     </div>
                 </nav>
             </div>
@@ -120,32 +79,21 @@ const Navbar = ({
                     <Drawer.Overlay className="fixed inset-0 bg-black/40" />
                     <Drawer.Content className="bg-gray-100 flex flex-col rounded-t-[10px] mt-24 h-fit fixed bottom-0 left-0 right-0 outline-none">
                         <div className="p-4 bg-white rounded-t-[10px] flex-1">
-                            <div
-                                aria-hidden
-                                className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-8"
-                            />
+                            <div aria-hidden className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-8" />
 
                             <div className="overflow-y-scroll text-sm h-80">
                                 {menuData.map((section, index) => (
                                     <Fragment key={index}>
-                                        {section.title && (
-                                            <div className="my-4 font-semibold text-gray-600">
-                                                {section.title}
-                                            </div>
-                                        )}
+                                        {section.title && <div className="my-4 font-semibold text-gray-600">{section.title}</div>}
 
                                         {section.items.map((item, index) => (
                                             <Link
                                                 to={item.path}
                                                 key={index}
                                                 activeProps={{
-                                                    className:
-                                                        "text-gray-600 font-semibold",
+                                                    className: "text-gray-600 font-semibold",
                                                 }}
-                                                onClick={() =>
-                                                    setOpenDrawer &&
-                                                    setOpenDrawer(false)
-                                                }
+                                                onClick={() => setOpenDrawer && setOpenDrawer(false)}
                                                 className="block my-3 text-gray-500"
                                             >
                                                 {item.name}
@@ -177,9 +125,7 @@ const ProfileDropdown = forwardRef<HTMLDivElement, {}>((_, ref) => {
             <div className="flex justify-center gap-2 px-4 py-3 text-gray-600 dark:text-gray-200">
                 <div className="bg-blue-300 rounded-full size-10"></div>
                 <div>
-                    <div className="text-sm font-semibold">
-                        Rasikh Khalil Pasha
-                    </div>
+                    <div className="text-sm font-semibold">Rasikh Khalil Pasha</div>
                     <div className="text-xs">Rasikh Khalil Pasha</div>
                 </div>
             </div>
@@ -222,9 +168,7 @@ const SearchBar = () => {
 
     const scrollToSelected = () => {
         const container = resultsContainerRef.current;
-        const selectedElement = container?.children[
-            selectedIndex
-        ] as HTMLElement;
+        const selectedElement = container?.children[selectedIndex] as HTMLElement;
 
         if (container && selectedElement) {
             const containerHeight = container.clientHeight;
@@ -232,12 +176,8 @@ const SearchBar = () => {
             const containerScrollTop = container.scrollTop;
             const elementTop = selectedElement.offsetTop;
 
-            if (
-                elementTop + elementHeight >
-                containerScrollTop + containerHeight
-            ) {
-                container.scrollTop =
-                    elementTop + elementHeight - containerHeight;
+            if (elementTop + elementHeight > containerScrollTop + containerHeight) {
+                container.scrollTop = elementTop + elementHeight - containerHeight;
             } else if (elementTop < containerScrollTop) {
                 container.scrollTop = elementTop;
             }
@@ -288,15 +228,11 @@ const SearchBar = () => {
         switch (e.key) {
             case "ArrowDown":
                 e.preventDefault();
-                setSelectedIndex((prev) =>
-                    prev < searchResults.length - 1 ? prev + 1 : 0
-                );
+                setSelectedIndex((prev) => (prev < searchResults.length - 1 ? prev + 1 : 0));
                 break;
             case "ArrowUp":
                 e.preventDefault();
-                setSelectedIndex((prev) =>
-                    prev > 0 ? prev - 1 : searchResults.length - 1
-                );
+                setSelectedIndex((prev) => (prev > 0 ? prev - 1 : searchResults.length - 1));
                 break;
             case "Enter":
                 e.preventDefault();
@@ -308,10 +244,7 @@ const SearchBar = () => {
     };
 
     const handleClickOutside = (e: MouseEvent) => {
-        if (
-            !searchRef.current?.contains(e.target as Node) &&
-            !buttonRef.current?.contains(e.target as Node)
-        ) {
+        if (!searchRef.current?.contains(e.target as Node) && !buttonRef.current?.contains(e.target as Node)) {
             setIsOpen(false);
         }
     };
@@ -358,9 +291,7 @@ const SearchBar = () => {
                 className="items-center gap-4 lg:px-4 text-sm text-gray-600 dark:text-gray-200 transition-all rounded-lg hover:bg-gray-50 active:bg-gray-100 flex dark:hover:bg-[#282a41] dark:active:bg-[#1a1b2b]"
             >
                 <SearchNormal size={20} />
-                <div className="hidden text-gray-400 lg:block">
-                    Search (Ctrl+/)
-                </div>
+                <div className="hidden text-gray-400 lg:block">Search (Ctrl+/)</div>
             </button>
             <AnimatePresence>
                 {isOpen && (
@@ -371,19 +302,14 @@ const SearchBar = () => {
                         transition={{ duration: 0.1 }}
                         className="fixed inset-0 flex items-center justify-center w-screen h-screen bg-black/50 backdrop-blur-sm"
                     >
-                        <div
-                            ref={searchRef}
-                            className="w-[500px] rounded-xl bg-white dark:bg-[#30334E] -translate-y-20 lg:-translate-y-0"
-                        >
+                        <div ref={searchRef} className="w-[500px] rounded-xl bg-white dark:bg-[#30334E] -translate-y-20 lg:-translate-y-0">
                             <div className="flex items-center gap-4 p-4 text-gray-600 dark:text-gray-200">
                                 <SearchNormal className="m-2" />
                                 <input
                                     ref={inputRef}
                                     type="text"
                                     value={searchTerm}
-                                    onChange={(e) =>
-                                        setSearchTerm(e.target.value)
-                                    }
+                                    onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Search..."
                                     className="w-full text-sm bg-transparent outline-none"
                                 />
@@ -400,48 +326,31 @@ const SearchBar = () => {
                             <div className="relative">
                                 <div className="absolute top-0 left-0 right-0 z-10 h-4 bg-gradient-to-b from-white dark:from-[#30334E] to-transparent" />
 
-                                <div
-                                    ref={resultsContainerRef}
-                                    className="px-6 py-4 my-5 overflow-y-auto h-96 scroll-smooth scrollbar-none"
-                                >
+                                <div ref={resultsContainerRef} className="px-6 py-4 my-5 overflow-y-auto h-96 scroll-smooth scrollbar-none">
                                     {searchTerm ? (
                                         searchResults.length > 0 ? (
                                             searchResults.map((item, index) => (
                                                 <div
                                                     key={item.id}
-                                                    onClick={() =>
-                                                        handleSelectItem(item)
-                                                    }
+                                                    onClick={() => handleSelectItem(item)}
                                                     className={`flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-colors ${
-                                                        index === selectedIndex
-                                                            ? "bg-gray-100 dark:bg-blue-500"
-                                                            : "hover:bg-gray-50 dark:hover:bg-blue-500"
+                                                        index === selectedIndex ? "bg-gray-100 dark:bg-blue-500" : "hover:bg-gray-50 dark:hover:bg-blue-500"
                                                     }`}
                                                 >
                                                     <div className="flex items-center flex-1 gap-4 text-gray-600 dark:text-gray-200">
                                                         {item.icon}
-                                                        <span className="text-sm ">
-                                                            {item.name}
-                                                        </span>
+                                                        <span className="text-sm ">{item.name}</span>
                                                     </div>
-                                                    <span className="text-xs font-semibold text-gray-400 dark:text-gray-200">
-                                                        {item.section}
-                                                    </span>
+                                                    <span className="text-xs font-semibold text-gray-400 dark:text-gray-200">{item.section}</span>
                                                 </div>
                                             ))
                                         ) : (
-                                            <div className="py-4 text-center text-gray-500 dark:text-gray-200">
-                                                No results found
-                                            </div>
+                                            <div className="py-4 text-center text-gray-500 dark:text-gray-200">No results found</div>
                                         )
                                     ) : (
                                         menuData.map((section, index) => (
                                             <div key={index}>
-                                                {section.title && (
-                                                    <div className="my-2 text-xs font-semibold text-gray-400">
-                                                        {section.title}
-                                                    </div>
-                                                )}
+                                                {section.title && <div className="my-2 text-xs font-semibold text-gray-400">{section.title}</div>}
 
                                                 {section.items.map((item) => (
                                                     <div
@@ -449,16 +358,13 @@ const SearchBar = () => {
                                                         onClick={() =>
                                                             handleSelectItem({
                                                                 ...item,
-                                                                section:
-                                                                    section.title,
+                                                                section: section.title,
                                                             })
                                                         }
                                                         className="flex items-center gap-4 p-3 text-gray-600 rounded-lg cursor-pointer dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-blue-500"
                                                     >
                                                         {item.icon}
-                                                        <span className="text-sm">
-                                                            {item.name}
-                                                        </span>
+                                                        <span className="text-sm">{item.name}</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -492,10 +398,7 @@ const ThemeToggle = () => {
     }, [theme]);
 
     return (
-        <button
-            onClick={toggleTheme}
-            className="p-2 transition-all rounded-full hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-600 dark:active:bg-gray-700"
-        >
+        <button onClick={toggleTheme} className="p-2 transition-all rounded-full hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-600 dark:active:bg-gray-700">
             {theme === "dark" ? <Sun1 size={20} /> : <Moon size={20} />}
         </button>
     );

@@ -1,18 +1,4 @@
-import {
-    ArrowLeft2,
-    ArrowRight2,
-    Activity,
-    ArrangeHorizontalSquare,
-    Briefcase,
-    Calendar,
-    Category,
-    ChemicalGlass,
-    Key,
-    Note,
-    Profile2User,
-    Truck,
-    User,
-} from "iconsax-react";
+import { ArrowLeft2, ArrowRight2, Activity, ArrangeHorizontalSquare, Briefcase, Calendar, Category, ChemicalGlass, Key, Note, Profile2User, Truck, User, ShoppingBag } from "iconsax-react";
 import logoPestindo from "../assets/logo pestindo 2.png";
 import { Fragment, useState } from "react";
 import { useAnimate } from "motion/react";
@@ -113,6 +99,12 @@ export const menuData: Section[] = [
                 icon: <Note size={20} />,
                 path: "/inventory/log",
             },
+            {
+                id: "orders",
+                name: "Orders",
+                icon: <ShoppingBag size={20} />,
+                path: "/inventory/order",
+            },
         ],
     },
     {
@@ -165,33 +157,17 @@ const Sidebar = () => {
     const toggleSidebar = () => {
         if (isSidebarOpen) {
             const sequence: any = [
-                [
-                    "#menu-name",
-                    { display: "none", opacity: 0 },
-                    { duration: 0 },
-                ],
+                ["#menu-name", { display: "none", opacity: 0 }, { duration: 0 }],
                 ["#menu-button", { padding: "12px 12px" }, { duration: 0 }],
-                [
-                    "#logo",
-                    { width: 41 },
-                    { duration: 0.3, at: 0, ease: [0.39, 0.24, 0.3, 1] },
-                ],
+                ["#logo", { width: 41 }, { duration: 0.3, at: 0, ease: [0.39, 0.24, 0.3, 1] }],
             ];
             animate(sequence);
         } else {
             const sequence: any = [
                 ["#menu-button", { padding: "12px 16px" }, { delay: 0.1 }],
-                [
-                    "#menu-name",
-                    { display: "block" },
-                    { duration: 0.1, at: 0.1 },
-                ],
+                ["#menu-name", { display: "block" }, { duration: 0.1, at: 0.1 }],
                 ["#menu-name", { opacity: 100 }, { duration: 0.1 }],
-                [
-                    "#logo",
-                    { width: 200 },
-                    { duration: 0.3, at: 0, ease: [0.39, 0.24, 0.3, 1] },
-                ],
+                ["#logo", { width: 200 }, { duration: 0.3, at: 0, ease: [0.39, 0.24, 0.3, 1] }],
             ];
             animate(sequence);
         }
@@ -199,19 +175,12 @@ const Sidebar = () => {
     };
 
     return (
-        <div
-            ref={scope}
-            className="sticky top-0 h-screen p-4 border-r border-gray-200 dark:border-gray-600"
-        >
+        <div ref={scope} className="sticky top-0 h-screen p-4 border-r border-gray-200 dark:border-gray-600">
             <button
                 onClick={toggleSidebar}
                 className="absolute right-0 p-2 text-gray-500 transition-all translate-x-1/2 bg-white dark:bg-[#30334E] border border-gray-200 dark:border-gray-600 rounded-full hover:bg-gray-100 dark:hover:bg-[#282a41] active:bg-gray-200 dark:active:bg-[#1a1b2b] top-7"
             >
-                {isSidebarOpen ? (
-                    <ArrowLeft2 size={16} />
-                ) : (
-                    <ArrowRight2 size={16} />
-                )}
+                {isSidebarOpen ? <ArrowLeft2 size={16} /> : <ArrowRight2 size={16} />}
             </button>
 
             <img
@@ -231,21 +200,10 @@ const Sidebar = () => {
             <div className="h-[calc(100vh-160px)] overflow-y-scroll scrollbar-none py-4">
                 {menuData.map((section, index) => (
                     <Fragment key={index}>
-                        {section.title && (
-                            <SectionTitle
-                                name={section.title}
-                                isSidebarOpen={isSidebarOpen}
-                            />
-                        )}
+                        {section.title && <SectionTitle name={section.title} isSidebarOpen={isSidebarOpen} />}
 
                         {section.items.map((item, index) => (
-                            <Menu
-                                key={index}
-                                icon={item.icon}
-                                menuName={item.name}
-                                isSidebarOpen={isSidebarOpen}
-                                path={item.path}
-                            />
+                            <Menu key={index} icon={item.icon} menuName={item.name} isSidebarOpen={isSidebarOpen} path={item.path} />
                         ))}
                     </Fragment>
                 ))}
