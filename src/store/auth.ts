@@ -3,6 +3,7 @@ import { getAuthToken, setAuthToken } from "@/lib/utils";
 
 export type AuthType = {
     user: {
+        id: number;
         code: string;
         name: string;
         phone: number;
@@ -17,7 +18,7 @@ const storage = {
     getItem: (key: string): AuthType | null => {
         if (key === "auth") {
             const token = getAuthToken();
-            return token ? { token, user: { code: "", name: "", phone: 0, email: "", role: "" }, expires_at: "" } : null;
+            return token ? { token, user: { id: 0, code: "", name: "", phone: 0, email: "", role: "" }, expires_at: "" } : null;
         }
         return null;
     },

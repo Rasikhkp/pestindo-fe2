@@ -35,6 +35,7 @@ import { Route as LayoutBusinessScheduleImport } from './routes/_layout.business
 import { Route as LayoutBusinessJobImport } from './routes/_layout.business_.job'
 import { Route as LayoutAdminUserImport } from './routes/_layout.admin_.user'
 import { Route as LayoutAdminRoleImport } from './routes/_layout.admin_.role'
+import { Route as LayoutTechnicianRequestCreateImport } from './routes/_layout.technician_.request_.create'
 import { Route as LayoutSalesSupplierCreateImport } from './routes/_layout.sales_.supplier_.create'
 import { Route as LayoutSalesSupplierSupplieridImport } from './routes/_layout.sales_.supplier_.$supplier_id'
 import { Route as LayoutSalesJobCreateImport } from './routes/_layout.sales_.job_.create'
@@ -47,6 +48,7 @@ import { Route as LayoutInventoryItemCreateImport } from './routes/_layout.inven
 import { Route as LayoutInventoryItemItemidImport } from './routes/_layout.inventory_.item_.$item_id'
 import { Route as LayoutBusinessJobCreateImport } from './routes/_layout.business_.job_.create'
 import { Route as LayoutBusinessJobJobidImport } from './routes/_layout.business_.job_.$job_id'
+import { Route as LayoutTechnicianRequestEditRequestidImport } from './routes/_layout.technician_.request_.edit.$request_id'
 import { Route as LayoutSalesSupplierEditSupplieridImport } from './routes/_layout.sales_.supplier_.edit.$supplier_id'
 import { Route as LayoutSalesJobEditJobidImport } from './routes/_layout.sales_.job_.edit.$job_id'
 import { Route as LayoutSalesCustomerEditCustomeridImport } from './routes/_layout.sales_.customer_.edit.$customer_id'
@@ -199,6 +201,13 @@ const LayoutAdminRoleRoute = LayoutAdminRoleImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutTechnicianRequestCreateRoute =
+  LayoutTechnicianRequestCreateImport.update({
+    id: '/technician_/request_/create',
+    path: '/technician/request/create',
+    getParentRoute: () => LayoutRoute,
+  } as any)
+
 const LayoutSalesSupplierCreateRoute = LayoutSalesSupplierCreateImport.update({
   id: '/sales_/supplier_/create',
   path: '/sales/supplier/create',
@@ -275,6 +284,13 @@ const LayoutBusinessJobJobidRoute = LayoutBusinessJobJobidImport.update({
   path: '/business/job/$job_id',
   getParentRoute: () => LayoutRoute,
 } as any)
+
+const LayoutTechnicianRequestEditRequestidRoute =
+  LayoutTechnicianRequestEditRequestidImport.update({
+    id: '/technician_/request_/edit/$request_id',
+    path: '/technician/request/edit/$request_id',
+    getParentRoute: () => LayoutRoute,
+  } as any)
 
 const LayoutSalesSupplierEditSupplieridRoute =
   LayoutSalesSupplierEditSupplieridImport.update({
@@ -574,6 +590,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSalesSupplierCreateImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/technician_/request_/create': {
+      id: '/_layout/technician_/request_/create'
+      path: '/technician/request/create'
+      fullPath: '/technician/request/create'
+      preLoaderRoute: typeof LayoutTechnicianRequestCreateImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/business_/job_/edit/$job_id': {
       id: '/_layout/business_/job_/edit/$job_id'
       path: '/business/job/edit/$job_id'
@@ -616,6 +639,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSalesSupplierEditSupplieridImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/technician_/request_/edit/$request_id': {
+      id: '/_layout/technician_/request_/edit/$request_id'
+      path: '/technician/request/edit/$request_id'
+      fullPath: '/technician/request/edit/$request_id'
+      preLoaderRoute: typeof LayoutTechnicianRequestEditRequestidImport
+      parentRoute: typeof LayoutImport
+    }
   }
 }
 
@@ -655,12 +685,14 @@ interface LayoutRouteChildren {
   LayoutSalesJobCreateRoute: typeof LayoutSalesJobCreateRoute
   LayoutSalesSupplierSupplieridRoute: typeof LayoutSalesSupplierSupplieridRoute
   LayoutSalesSupplierCreateRoute: typeof LayoutSalesSupplierCreateRoute
+  LayoutTechnicianRequestCreateRoute: typeof LayoutTechnicianRequestCreateRoute
   LayoutBusinessJobEditJobidRoute: typeof LayoutBusinessJobEditJobidRoute
   LayoutInventoryItemEditItemidRoute: typeof LayoutInventoryItemEditItemidRoute
   LayoutInventoryOrderEditOrderidRoute: typeof LayoutInventoryOrderEditOrderidRoute
   LayoutSalesCustomerEditCustomeridRoute: typeof LayoutSalesCustomerEditCustomeridRoute
   LayoutSalesJobEditJobidRoute: typeof LayoutSalesJobEditJobidRoute
   LayoutSalesSupplierEditSupplieridRoute: typeof LayoutSalesSupplierEditSupplieridRoute
+  LayoutTechnicianRequestEditRequestidRoute: typeof LayoutTechnicianRequestEditRequestidRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
@@ -697,6 +729,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutSalesJobCreateRoute: LayoutSalesJobCreateRoute,
   LayoutSalesSupplierSupplieridRoute: LayoutSalesSupplierSupplieridRoute,
   LayoutSalesSupplierCreateRoute: LayoutSalesSupplierCreateRoute,
+  LayoutTechnicianRequestCreateRoute: LayoutTechnicianRequestCreateRoute,
   LayoutBusinessJobEditJobidRoute: LayoutBusinessJobEditJobidRoute,
   LayoutInventoryItemEditItemidRoute: LayoutInventoryItemEditItemidRoute,
   LayoutInventoryOrderEditOrderidRoute: LayoutInventoryOrderEditOrderidRoute,
@@ -705,6 +738,8 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutSalesJobEditJobidRoute: LayoutSalesJobEditJobidRoute,
   LayoutSalesSupplierEditSupplieridRoute:
     LayoutSalesSupplierEditSupplieridRoute,
+  LayoutTechnicianRequestEditRequestidRoute:
+    LayoutTechnicianRequestEditRequestidRoute,
 }
 
 const LayoutRouteWithChildren =
@@ -747,12 +782,14 @@ export interface FileRoutesByFullPath {
   '/sales/job/create': typeof LayoutSalesJobCreateRoute
   '/sales/supplier/$supplier_id': typeof LayoutSalesSupplierSupplieridRoute
   '/sales/supplier/create': typeof LayoutSalesSupplierCreateRoute
+  '/technician/request/create': typeof LayoutTechnicianRequestCreateRoute
   '/business/job/edit/$job_id': typeof LayoutBusinessJobEditJobidRoute
   '/inventory/item/edit/$item_id': typeof LayoutInventoryItemEditItemidRoute
   '/inventory/order/edit/$order_id': typeof LayoutInventoryOrderEditOrderidRoute
   '/sales/customer/edit/$customer_id': typeof LayoutSalesCustomerEditCustomeridRoute
   '/sales/job/edit/$job_id': typeof LayoutSalesJobEditJobidRoute
   '/sales/supplier/edit/$supplier_id': typeof LayoutSalesSupplierEditSupplieridRoute
+  '/technician/request/edit/$request_id': typeof LayoutTechnicianRequestEditRequestidRoute
 }
 
 export interface FileRoutesByTo {
@@ -792,12 +829,14 @@ export interface FileRoutesByTo {
   '/sales/job/create': typeof LayoutSalesJobCreateRoute
   '/sales/supplier/$supplier_id': typeof LayoutSalesSupplierSupplieridRoute
   '/sales/supplier/create': typeof LayoutSalesSupplierCreateRoute
+  '/technician/request/create': typeof LayoutTechnicianRequestCreateRoute
   '/business/job/edit/$job_id': typeof LayoutBusinessJobEditJobidRoute
   '/inventory/item/edit/$item_id': typeof LayoutInventoryItemEditItemidRoute
   '/inventory/order/edit/$order_id': typeof LayoutInventoryOrderEditOrderidRoute
   '/sales/customer/edit/$customer_id': typeof LayoutSalesCustomerEditCustomeridRoute
   '/sales/job/edit/$job_id': typeof LayoutSalesJobEditJobidRoute
   '/sales/supplier/edit/$supplier_id': typeof LayoutSalesSupplierEditSupplieridRoute
+  '/technician/request/edit/$request_id': typeof LayoutTechnicianRequestEditRequestidRoute
 }
 
 export interface FileRoutesById {
@@ -838,12 +877,14 @@ export interface FileRoutesById {
   '/_layout/sales_/job_/create': typeof LayoutSalesJobCreateRoute
   '/_layout/sales_/supplier_/$supplier_id': typeof LayoutSalesSupplierSupplieridRoute
   '/_layout/sales_/supplier_/create': typeof LayoutSalesSupplierCreateRoute
+  '/_layout/technician_/request_/create': typeof LayoutTechnicianRequestCreateRoute
   '/_layout/business_/job_/edit/$job_id': typeof LayoutBusinessJobEditJobidRoute
   '/_layout/inventory_/item_/edit/$item_id': typeof LayoutInventoryItemEditItemidRoute
   '/_layout/inventory_/order_/edit/$order_id': typeof LayoutInventoryOrderEditOrderidRoute
   '/_layout/sales_/customer_/edit/$customer_id': typeof LayoutSalesCustomerEditCustomeridRoute
   '/_layout/sales_/job_/edit/$job_id': typeof LayoutSalesJobEditJobidRoute
   '/_layout/sales_/supplier_/edit/$supplier_id': typeof LayoutSalesSupplierEditSupplieridRoute
+  '/_layout/technician_/request_/edit/$request_id': typeof LayoutTechnicianRequestEditRequestidRoute
 }
 
 export interface FileRouteTypes {
@@ -885,12 +926,14 @@ export interface FileRouteTypes {
     | '/sales/job/create'
     | '/sales/supplier/$supplier_id'
     | '/sales/supplier/create'
+    | '/technician/request/create'
     | '/business/job/edit/$job_id'
     | '/inventory/item/edit/$item_id'
     | '/inventory/order/edit/$order_id'
     | '/sales/customer/edit/$customer_id'
     | '/sales/job/edit/$job_id'
     | '/sales/supplier/edit/$supplier_id'
+    | '/technician/request/edit/$request_id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -929,12 +972,14 @@ export interface FileRouteTypes {
     | '/sales/job/create'
     | '/sales/supplier/$supplier_id'
     | '/sales/supplier/create'
+    | '/technician/request/create'
     | '/business/job/edit/$job_id'
     | '/inventory/item/edit/$item_id'
     | '/inventory/order/edit/$order_id'
     | '/sales/customer/edit/$customer_id'
     | '/sales/job/edit/$job_id'
     | '/sales/supplier/edit/$supplier_id'
+    | '/technician/request/edit/$request_id'
   id:
     | '__root__'
     | '/'
@@ -973,12 +1018,14 @@ export interface FileRouteTypes {
     | '/_layout/sales_/job_/create'
     | '/_layout/sales_/supplier_/$supplier_id'
     | '/_layout/sales_/supplier_/create'
+    | '/_layout/technician_/request_/create'
     | '/_layout/business_/job_/edit/$job_id'
     | '/_layout/inventory_/item_/edit/$item_id'
     | '/_layout/inventory_/order_/edit/$order_id'
     | '/_layout/sales_/customer_/edit/$customer_id'
     | '/_layout/sales_/job_/edit/$job_id'
     | '/_layout/sales_/supplier_/edit/$supplier_id'
+    | '/_layout/technician_/request_/edit/$request_id'
   fileRoutesById: FileRoutesById
 }
 
@@ -1048,12 +1095,14 @@ export const routeTree = rootRoute
         "/_layout/sales_/job_/create",
         "/_layout/sales_/supplier_/$supplier_id",
         "/_layout/sales_/supplier_/create",
+        "/_layout/technician_/request_/create",
         "/_layout/business_/job_/edit/$job_id",
         "/_layout/inventory_/item_/edit/$item_id",
         "/_layout/inventory_/order_/edit/$order_id",
         "/_layout/sales_/customer_/edit/$customer_id",
         "/_layout/sales_/job_/edit/$job_id",
-        "/_layout/sales_/supplier_/edit/$supplier_id"
+        "/_layout/sales_/supplier_/edit/$supplier_id",
+        "/_layout/technician_/request_/edit/$request_id"
       ]
     },
     "/login": {
@@ -1191,6 +1240,10 @@ export const routeTree = rootRoute
       "filePath": "_layout.sales_.supplier_.create.tsx",
       "parent": "/_layout"
     },
+    "/_layout/technician_/request_/create": {
+      "filePath": "_layout.technician_.request_.create.tsx",
+      "parent": "/_layout"
+    },
     "/_layout/business_/job_/edit/$job_id": {
       "filePath": "_layout.business_.job_.edit.$job_id.tsx",
       "parent": "/_layout"
@@ -1213,6 +1266,10 @@ export const routeTree = rootRoute
     },
     "/_layout/sales_/supplier_/edit/$supplier_id": {
       "filePath": "_layout.sales_.supplier_.edit.$supplier_id.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/technician_/request_/edit/$request_id": {
+      "filePath": "_layout.technician_.request_.edit.$request_id.tsx",
       "parent": "/_layout"
     }
   }

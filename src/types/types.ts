@@ -97,3 +97,24 @@ export interface Order {
     created_at: string;
     updated_at: string;
 }
+
+export interface InventoryRequest {
+    id: number;
+    code: string;
+    created_at: string; // ISO 8601
+    employee: {
+        id: number;
+        code: string;
+        name: string;
+    };
+    status: "requested" | "approved" | "rejected";
+    type: "in" | "out";
+    note: string | null;
+    items: Array<{
+        id: number;
+        name: string;
+        code: string;
+        amount: number;
+        unit: string;
+    }>;
+}
