@@ -133,10 +133,10 @@ const ProfileDropdown = forwardRef<HTMLDivElement, {}>((_, ref) => {
             <div className="border-b border-gray-200 dark:border-gray-600"></div>
 
             <div className="p-2">
-                <div className="flex items-center gap-2 p-2 text-sm font-medium transition-all rounded-lg hover:bg-gray-50 active:bg-gray-100 dark:hover:bg-[#2b2d46] dark:active:bg-[#24263b] duration-100">
+                <Link to="/my-profile" className="flex items-center gap-2 p-2 text-sm font-medium transition-all rounded-lg hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-[#2b2d46] dark:active:bg-[#24263b] duration-100">
                     <UserSquare size={20} />
-                    Profile
-                </div>
+                    Profile Saya
+                </Link>
             </div>
 
             <div className="border-b border-gray-200 dark:border-gray-600"></div>
@@ -333,9 +333,8 @@ const SearchBar = () => {
                                                 <div
                                                     key={item.id}
                                                     onClick={() => handleSelectItem(item)}
-                                                    className={`flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-colors ${
-                                                        index === selectedIndex ? "bg-gray-100 dark:bg-blue-500" : "hover:bg-gray-50 dark:hover:bg-blue-500"
-                                                    }`}
+                                                    className={`flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-colors ${index === selectedIndex ? "bg-gray-100 dark:bg-blue-500" : "hover:bg-gray-50 dark:hover:bg-blue-500"
+                                                        }`}
                                                 >
                                                     <div className="flex items-center flex-1 gap-4 text-gray-600 dark:text-gray-200">
                                                         {item.icon}

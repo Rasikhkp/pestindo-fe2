@@ -118,3 +118,15 @@ export interface InventoryRequest {
         unit: string;
     }>;
 }
+
+export interface TechnicianItem {
+    id: number;
+    code: string;
+    name: string;
+    type: string;
+    unit: string;
+    image: string;
+    employee_id: number;
+    amount: number;
+    created_at: string;
+}

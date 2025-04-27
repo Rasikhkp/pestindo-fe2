@@ -148,7 +148,7 @@ const getItemColumns = (onDelete: (item: Item) => void): ColumnDef<Item, any>[] 
 function RouteComponent() {
     const { auth } = useAuth();
 
-    if (!canAccess(["Inventory", "Superadmin"], auth?.user.role || "")) {
+    if (!canAccess(["Admin Inventaris", "Superadmin"], auth?.user.role || "")) {
         return <Navigate to="/dashboard" />;
     }
 

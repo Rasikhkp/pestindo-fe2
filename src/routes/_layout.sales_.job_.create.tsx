@@ -35,8 +35,14 @@ function RouteComponent() {
         queryFn: async () => api().get("employee").json<any>(),
     });
 
+    const { data: employeesData } = useQuery({
+        queryKey: ["employees"],
+        queryFn: async () => api().get("employee").json<any>(),
+    });
+
     const customers = customersData?.data || [];
     const sales = salesData?.data || [];
+    const employees = employeesData?.data || [];
 
     useEffect(() => {
         if (customersError) {
@@ -62,6 +68,7 @@ function RouteComponent() {
             contract_type: data.contractType,
             sales: data.sales,
             customer_id: data.customer,
+            referrer: data.referrer,
             po_number: data.poNumber,
             spk_number: data.spkNumber,
             start_date: data.dateRange.from,
@@ -74,6 +81,18 @@ function RouteComponent() {
             pic_finance_name: data.picFinanceName,
             pic_finance_phone: data.picFinancePhone,
             reference: data.reference,
+            job_address: {
+                province: data.jobAddress.province,
+                regency: data.jobAddress.regency,
+                district: data.jobAddress.district,
+                detail_address: data.jobAddress.detail_address
+            },
+            billing_address: {
+                province: data.billingAddress.province,
+                regency: data.billingAddress.regency,
+                district: data.billingAddress.district,
+                detail_address: data.billingAddress.detail_address
+            }
         };
 
         createJobMutation.mutate(requestBody);
@@ -107,6 +126,7 @@ function RouteComponent() {
                 isSubmitting={createJobMutation.isPending}
                 customers={customers}
                 sales={sales}
+                employees={employees}
             />
         </>
     );

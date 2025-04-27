@@ -6,15 +6,17 @@ import { Checkbox } from "@heroui/checkbox";
 import { More } from "iconsax-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { api, canAccess, getApiErrorMessage } from "@/lib/utils";
+import { api, canAccess, formatToRupiah, getApiErrorMessage } from "@/lib/utils";
 import { DeleteDialog } from "@/components/DeleteDialog";
 import { DataTable } from "@/components/DataTable";
 import { useTable } from "@/hooks/useTable";
 import { Job } from "@/types/types";
-import { is } from "date-fns/locale";
+import { id } from "date-fns/locale";
 import { useAtom } from "jotai";
 import { errorAtom } from "@/store/error";
 import { useAuth } from "@/hooks/useAuth";
+import { format, differenceInDays } from "date-fns";
+// import { SelectContent, SelectGroup, SelectItem } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_layout/sales_/job")({
     component: RouteComponent,
@@ -80,16 +82,67 @@ const getJobColumns = (onDelete: (job: Job) => void): ColumnDef<Job, any>[] => [
         accessorKey: "total_contract_value",
         header: () => "Nilai Kontrak",
         filterFn: "fuzzy",
+        cell: ({ row }) => formatToRupiah(Number(row.original.total_contract_value)),
     },
     {
         id: "tanggal",
         header: () => "Tanggal",
-        cell: ({ row }) => (
-            <div>
-                {row.original.start_date} - {row.original.end_date}
-            </div>
-        ),
+        cell: ({ row }) => {
+            const startDate = row.original.start_date ? new Date(row.original.start_date) : null;
+            const endDate = row.original.end_date ? new Date(row.original.end_date) : null;
+
+            const isStartValid = startDate && !isNaN(startDate.getTime());
+            const isEndValid = endDate && !isNaN(endDate.getTime());
+
+            return (
+                <div>
+                    {isStartValid ? format(startDate, "dd MMM yyyy", { locale: id }) : "Tanggal tidak valid"}
+                    {" - "}
+                    {isEndValid ? format(endDate, "dd MMM yyyy", { locale: id }) : "Tanggal tidak valid"}
+                </div>
+            );
+        },
         filterFn: "fuzzy",
+    },
+    {
+        id: "days_remaining",
+        header: () => "Sisa Waktu",
+        accessorFn: (row) => {
+            const endDate = row.end_date ? new Date(row.end_date) : null;
+            if (!endDate || isNaN(endDate.getTime())) return -999; // Invalid date returns very negative number for sorting
+
+            const today = new Date();
+            return differenceInDays(endDate, today);
+        },
+        cell: ({ row }) => {
+            const endDate = row.original.end_date ? new Date(row.original.end_date) : null;
+            if (!endDate || isNaN(endDate.getTime())) {
+                return <span className="text-gray-500">-</span>;
+            }
+
+            const today = new Date();
+            const daysRemaining = differenceInDays(endDate, today);
+
+            let badgeStyle = "";
+            let text = "";
+
+            if (daysRemaining < 0) {
+                badgeStyle = "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300";
+                text = "Kontrak berakhir";
+            } else if (daysRemaining <= 7) {
+                badgeStyle = "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300";
+                text = `${daysRemaining} hari`;
+            } else if (daysRemaining <= 30) {
+                badgeStyle = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300";
+                text = `${daysRemaining} hari`;
+            } else {
+                badgeStyle = "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300";
+                text = `${daysRemaining} hari`;
+            }
+
+            return <span className={`px-2 py-1 text-xs font-semibold rounded ${badgeStyle}`}>{text}</span>;
+        },
+        sortingFn: "alphanumeric",
     },
     {
         accessorKey: "status",

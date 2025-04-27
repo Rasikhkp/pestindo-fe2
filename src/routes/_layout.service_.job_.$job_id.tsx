@@ -22,7 +22,7 @@ import { Schedule } from '@/types/types'
 import { DocumentUpload } from '@/components/job/DocumentUpload'
 import { StatusChangeButton, Status } from '@/components/job/StatusChangeButton'
 
-export const Route = createFileRoute('/_layout/business_/job_/$job_id')({
+export const Route = createFileRoute('/_layout/service_/job_/$job_id')({
   component: RouteComponent,
   loader: async ({ params }) => {
     try {
@@ -40,9 +40,7 @@ export const Route = createFileRoute('/_layout/business_/job_/$job_id')({
 function RouteComponent() {
   const { auth } = useAuth()
 
-  if (
-    !canAccess(['Bisnis', 'Superadmin'], auth?.user.role || '')
-  ) {
+  if (!canAccess(['Bisnis', 'Superadmin'], auth?.user.role || '')) {
     return <Navigate to="/dashboard" />
   }
 

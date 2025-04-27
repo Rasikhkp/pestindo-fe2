@@ -85,7 +85,7 @@ export const Route = createFileRoute("/_layout/inventory_/log")({
 function RouteComponent() {
     const { auth } = useAuth();
 
-    if (!canAccess(["Superadmin", "Manager"], auth?.user.role || "")) {
+    if (!canAccess(["Superadmin", "Admin Inventaris"], auth?.user.role || "")) {
         return <Navigate to="/dashboard" />;
     }
 

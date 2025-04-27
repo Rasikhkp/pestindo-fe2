@@ -6,6 +6,8 @@ import Menu from "./Menu";
 import SectionTitle from "./SectionTitle";
 import { useAtom } from "jotai";
 import { themeAtom } from "../store/theme";
+import { useAuth } from "@/hooks/useAuth";
+import { UserCheck, UserSearch } from "lucide-react";
 
 export type MenuItem = {
     id: string;
@@ -17,12 +19,14 @@ export type MenuItem = {
 
 export type Section = {
     title: string;
+    roles: string[];
     items: Omit<MenuItem, "section">[];
 };
 
 export const menuData: Section[] = [
     {
         title: "",
+        roles: ['Superadmin', 'Sales', 'Bisnis', 'Admin Inventaris', 'Teknisi', 'Manager Sales'],
         items: [
             {
                 id: "dashboard",
@@ -33,19 +37,20 @@ export const menuData: Section[] = [
         ],
     },
     {
-        title: "SALES",
+        title: "SALES & MARKETING",
+        roles: ['Superadmin', 'Sales', 'Manager Sales'],
         items: [
+            {
+                id: "prospective_customers",
+                name: "Calon Pelanggan",
+                icon: <UserSearch size={20} />,
+                path: "/sales/prospective-customer",
+            },
             {
                 id: "customers",
                 name: "Pelanggan",
-                icon: <Profile2User size={20} />,
+                icon: <UserCheck size={20} />,
                 path: "/sales/customer",
-            },
-            {
-                id: "suppliers",
-                name: "Supplier",
-                icon: <Truck size={20} />,
-                path: "/sales/supplier",
             },
             {
                 id: "activities",
@@ -62,25 +67,33 @@ export const menuData: Section[] = [
         ],
     },
     {
-        title: "BISNIS",
+        title: "SERVICE",
+        roles: ['Superadmin', 'Bisnis'],
         items: [
             {
                 id: "business-jobs",
                 name: "Pekerjaan",
                 icon: <Briefcase size={20} />,
-                path: "/business/job",
+                path: "/service/job",
             },
             {
                 id: "schedule",
                 name: "Jadwal",
                 icon: <Calendar size={20} />,
-                path: "/business/schedule",
+                path: "/service/schedule",
             },
         ],
     },
     {
         title: "INVENTARIS",
+        roles: ['Superadmin', 'Admin Inventaris'],
         items: [
+            {
+                id: "suppliers",
+                name: "Supplier",
+                icon: <Truck size={20} />,
+                path: "/inventory/supplier",
+            },
             {
                 id: "items",
                 name: "Barang",
@@ -99,16 +112,17 @@ export const menuData: Section[] = [
                 icon: <Note size={20} />,
                 path: "/inventory/log",
             },
-            {
-                id: "orders",
-                name: "Orders",
-                icon: <ShoppingBag size={20} />,
-                path: "/inventory/order",
-            },
+            // {
+            //     id: "orders",
+            //     name: "Orders",
+            //     icon: <ShoppingBag size={20} />,
+            //     path: "/inventory/order",
+            // },
         ],
     },
     {
         title: "TEKNISI",
+        roles: ['Superadmin', 'Teknisi'],
         items: [
             {
                 id: "technician-jobs",
@@ -128,10 +142,17 @@ export const menuData: Section[] = [
                 icon: <ArrangeHorizontalSquare size={20} />,
                 path: "/technician/request",
             },
+            {
+                id: "logs",
+                name: "Log",
+                icon: <Note size={20} />,
+                path: "/technician/log",
+            },
         ],
     },
     {
         title: "ADMIN",
+        roles: ['Superadmin'],
         items: [
             {
                 id: "users",
@@ -151,6 +172,7 @@ export const menuData: Section[] = [
 
 const Sidebar = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const { auth } = useAuth()
     const [scope, animate] = useAnimate();
     const [theme, _] = useAtom(themeAtom);
 
@@ -198,15 +220,19 @@ const Sidebar = () => {
             </div>
 
             <div className="h-[calc(100vh-160px)] overflow-y-scroll scrollbar-none py-4">
-                {menuData.map((section, index) => (
-                    <Fragment key={index}>
-                        {section.title && <SectionTitle name={section.title} isSidebarOpen={isSidebarOpen} />}
+                {menuData.map((section, index) => {
+                    const isVisible = section.roles.some(role => auth?.user.role.includes(role));
+                    console.log(isVisible)
+                    return (
+                        <Fragment key={index}>
+                            {isVisible && section.title && <SectionTitle name={section.title} isSidebarOpen={isSidebarOpen} />}
 
-                        {section.items.map((item, index) => (
-                            <Menu key={index} icon={item.icon} menuName={item.name} isSidebarOpen={isSidebarOpen} path={item.path} />
-                        ))}
-                    </Fragment>
-                ))}
+                            {isVisible && section.items.map((item, index) => (
+                                <Menu key={index} icon={item.icon} menuName={item.name} isSidebarOpen={isSidebarOpen} path={item.path} />
+                            ))}
+                        </Fragment>
+                    )
+                })}
             </div>
             <div className="relative">
                 <div className="absolute top-0 left-0 right-0 z-10 w-full h-4 bg-gradient-to-t -translate-y-[100%] from-white dark:from-[#30334E] to-transparent" />

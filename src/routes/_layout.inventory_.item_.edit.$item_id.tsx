@@ -10,7 +10,8 @@ import { useAtom } from 'jotai'
 import { errorAtom } from '@/store/error'
 import { api, canAccess, getApiErrorMessage } from '@/lib/utils'
 import { useEffect } from 'react'
-import { ItemForm, type ItemForm as ItemFormType } from '@/components/inventory/ItemForm'
+import { ItemForm } from '@/components/item'
+import { ItemForm as ItemFormType } from "@/schemas/itemSchema";
 import { useAuth } from '@/hooks/useAuth'
 
 export const Route = createFileRoute('/_layout/inventory_/item_/edit/$item_id')({

@@ -14,25 +14,59 @@ import { JobForm, type JobForm as JobFormType } from '@/components/job/JobForm'
 import { Customer } from '@/types/types'
 import { useAuth } from '@/hooks/useAuth'
 
-export const Route = createFileRoute('/_layout/business_/job_/create')({
+export const Route = createFileRoute('/_layout/service_/job_/edit/$job_id')({
   component: RouteComponent,
+  loader: async ({ params }) => {
+    try {
+      const { data } = await api()
+        .get('jobs/' + params.job_id)
+        .json<any>()
+      return {
+        jobData: {
+          jobType: data.type,
+          contractType: data.contract_type,
+          customer: data.customer.id,
+          sales: data.sales.id,
+          poNumber: data.po_number,
+          spkNumber: data.spk_number,
+          dateRange: {
+            from: new Date(data.start_date),
+            to: new Date(data.end_date),
+          },
+          monthlyContractValue: data.monthly_contract_value,
+          totalContract: data.total_contract_value,
+          monthlyVisit: data.number_of_visit_per_month,
+          picName: data.pic_name,
+          picPhone: data.pic_phone,
+          picFinanceName: data.pic_finance_name,
+          picFinancePhone: data.pic_finance_phone,
+          reference: data.reference,
+        },
+      }
+    } catch (error) {
+      const errorMessage = await getApiErrorMessage(error)
+      throw new Error(errorMessage.message)
+    }
+  },
+  shouldReload: () => true,
+  gcTime: 0,
 })
 
 function RouteComponent() {
   const { auth } = useAuth()
 
-  if (
-    !canAccess(['Bisnis', 'Superadmin'], auth?.user.role || '')
-  ) {
+  if (!canAccess(['Bisnis', 'Superadmin'], auth?.user.role || '')) {
     return <Navigate to="/dashboard" />
   }
 
   const router = useRouter()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { job_id } = Route.useParams()
+  const { jobData } = Route.useLoaderData()
   const [, setError] = useAtom(errorAtom)
 
-  const { data: customersData, error: customersError } = useQuery({
+  const { data: customersData } = useQuery({
     queryKey: ['customers'],
     queryFn: async () => api().get('customers').json<{ data: Customer[] }>(),
   })
@@ -45,25 +79,28 @@ function RouteComponent() {
   const customers = customersData?.data || []
   const sales = salesData?.data || []
 
-  useEffect(() => {
-    if (customersError) {
-      getApiErrorMessage(customersError).then((errorMessage) =>
-        setError(errorMessage),
-      )
-    }
-  }, [customersError, setError])
-
-  const createJobMutation = useMutation({
-    mutationFn: (data: any) => api().post('jobs', { json: data }).json(),
+  const updateJobMutation = useMutation({
+    mutationFn: (data: any) =>
+      api()
+        .patch('jobs/' + job_id, { json: data })
+        .json(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
-      navigate({ from: '/business/job/create', to: '/business/job' })
+      navigate({ from: '/business/job/edit/$job_id', to: '/business/job' })
     },
     onError: async (error: any) => {
       const errorMessage = await getApiErrorMessage(error)
       setError(errorMessage)
     },
   })
+
+  useEffect(() => {
+    if (updateJobMutation.error) {
+      getApiErrorMessage(updateJobMutation.error).then((errorMessage) =>
+        setError(errorMessage),
+      )
+    }
+  }, [updateJobMutation.error, setError])
 
   const onSubmit = (data: JobFormType) => {
     const requestBody = {
@@ -87,7 +124,7 @@ function RouteComponent() {
       reference: data.reference,
     }
 
-    createJobMutation.mutate(requestBody)
+    updateJobMutation.mutate(requestBody)
   }
 
   return (
@@ -97,7 +134,10 @@ function RouteComponent() {
           if (router.history.length > 1) {
             router.history.back()
           } else {
-            navigate({ from: '/business/job/create', to: '/business/job' })
+            navigate({
+              from: '/business/job/edit/$job_id',
+              to: '/business/job',
+            })
           }
         }}
         className="flex items-center gap-3 mb-6 text-sm text-gray-600 dark:text-gray-300 group hover:font-medium"
@@ -110,22 +150,26 @@ function RouteComponent() {
       </button>
       <div className="mb-6">
         <h1 className="text-2xl font-semibold dark:text-gray-300">
-          Tambah Pekerjaan
+          Edit Pekerjaan
         </h1>
         <p className="text-gray-700 dark:text-gray-400">
-          Silakan isi data pekerjaan dengan lengkap dan benar.
+          Silakan edit data pekerjaan dengan lengkap dan benar.
         </p>
       </div>
       <JobForm
+        defaultValues={jobData}
         onSubmit={onSubmit}
         onCancel={() => {
           if (router.history.length > 1) {
             router.history.back()
           } else {
-            navigate({ from: '/business/job/create', to: '/business/job' })
+            navigate({
+              from: '/business/job/edit/$job_id',
+              to: '/business/job',
+            })
           }
         }}
-        isSubmitting={createJobMutation.isPending}
+        isSubmitting={updateJobMutation.isPending}
         customers={customers}
         sales={sales}
       />

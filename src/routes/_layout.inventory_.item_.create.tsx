@@ -5,12 +5,14 @@ import {
     useRouter,
 } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { errorAtom } from '@/store/error'
 import { api, canAccess, getApiErrorMessage } from '@/lib/utils'
-import { ItemForm, type ItemForm as ItemFormType } from '@/components/inventory/ItemForm'
+import { ItemForm, } from '@/components/item'
 import { useAuth } from '@/hooks/useAuth'
+import { ItemForm as ItemFormType } from "@/schemas/itemSchema";
+import { useEffect } from 'react'
 
 export const Route = createFileRoute('/_layout/inventory_/item_/create')({
     component: RouteComponent,
@@ -30,6 +32,21 @@ function RouteComponent() {
     const queryClient = useQueryClient()
     const [, setError] = useAtom(errorAtom)
 
+    // Fetch suppliers data
+    const { data: suppliersData, error: suppliersError } = useQuery({
+        queryKey: ["suppliers"],
+        queryFn: async () => api().get("suppliers").json<{ data: { id: number; name: string }[] }>(),
+    });
+
+    // Handle errors from API calls
+    useEffect(() => {
+        if (suppliersError) {
+            getApiErrorMessage(suppliersError).then(errorMessage => setError(errorMessage));
+        }
+    }, [suppliersError, setError]);
+
+    const suppliers = suppliersData?.data || [];
+
     const createItemMutation = useMutation({
         mutationFn: (data: any) => {
             // If we have a file, use FormData
@@ -41,6 +58,10 @@ function RouteComponent() {
                 formData.append('type', data.type);
                 formData.append('unit', data.unit);
                 formData.append('image', data.imageFile);
+                // Add supplier_id if present
+                if (data.supplier) {
+                    formData.append('supplier_id', String(data.supplier));
+                }
 
                 return api().post('items', {
                     body: formData,
@@ -58,6 +79,7 @@ function RouteComponent() {
                         type: data.type,
                         unit: data.unit,
                         image: data.image,
+                        supplier_id: data.supplier || null,
                     }
                 }).json();
             }
@@ -112,6 +134,7 @@ function RouteComponent() {
                     }
                 }}
                 isSubmitting={createItemMutation.isPending}
+                suppliers={suppliers}
             />
         </>
     )

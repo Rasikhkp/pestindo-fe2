@@ -12,6 +12,8 @@ import { router } from "./lib/router";
 import { queryClient } from "./lib/queryClient";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider } from "./components/AuthProvider";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 
 const App = () => {
     const [theme] = useAtom(themeAtom);
@@ -21,8 +23,10 @@ const App = () => {
             <HeroUIProvider>
                 <ThemeProvider>
                     <AuthProvider>
-                        <Toaster className="font-[Inter]" theme={theme} closeButton />
-                        <RouterProvider router={router} />
+                        <TooltipProvider>
+                            <Toaster className="font-[Inter]" theme={theme} closeButton />
+                            <RouterProvider router={router} />
+                        </TooltipProvider>
                     </AuthProvider>
                 </ThemeProvider>
             </HeroUIProvider>
